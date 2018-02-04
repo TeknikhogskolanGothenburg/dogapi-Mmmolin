@@ -1,4 +1,4 @@
-namespace test2.Models
+namespace dogapi_Mmmolin.Models
 {
     public class Dog
     {
