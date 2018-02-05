@@ -24,8 +24,8 @@ namespace dogapi_Mmmolin.Controllers
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
-        public IActionResult Get(string id)
+        [HttpGet("{breedName}")]
+        public IActionResult Get(string breedName)
         {
             var files = System.IO.Directory.GetFiles("DogFiles", "*.json");
             List<Models.Dog> dogs = new List<Models.Dog>();
@@ -33,7 +33,7 @@ namespace dogapi_Mmmolin.Controllers
             {
                 dogs.Add(JsonConvert.DeserializeObject<Models.Dog>(System.IO.File.ReadAllText(file)));
             }
-            var dog = dogs.Where(d => d.BreedName == id).FirstOrDefault();
+            var dog = dogs.Where(d => d.BreedName == breedName).FirstOrDefault();
             if (dog == null)
             {
                 return NotFound();
@@ -57,25 +57,39 @@ namespace dogapi_Mmmolin.Controllers
         }
 
         // PUT api/values/5
-        [HttpPut("{id}")]
+        [HttpPut("{breedName}")]
         public void Put(string breedName, [FromBody]Models.Dog dog) // take string and dog Object
         {
             if (dog == null || breedName != dog.BreedName) // If dog == null or breedName don't correspond to the object
             {
                 Response.StatusCode = 400; // return bad request
             }
-            var dogFile = (JsonConvert.DeserializeObject<Models.Dog>(System.IO.File.ReadAllText("/DogFiles/" + breedName + ".json")));
+            var dogFile = (JsonConvert.DeserializeObject<Models.Dog>(System.IO.File.ReadAllText(@".\DogFiles\" + breedName + ".json")));
+            if (dogFile == null)
+            {
+                Response.StatusCode = 404;
+            }
             dogFile.BreedName = dog.BreedName;
             dogFile.WikipediaUrl = dog.WikipediaUrl;
             dogFile.Description = dog.Description;
             var output = JsonConvert.SerializeObject(dogFile);
-            System.IO.File.WriteAllText(@".\DogFiles\" + breedName + ".json", output);
+            System.IO.File.WriteAllText(@".\DogFiles\" + breedName + ".json", output);            
         }
 
         // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{breedName}")]
+        public void Delete(string breedName)
         {
+            var files = System.IO.Directory.GetFiles("DogFiles", "*.json");
+            List<Models.Dog> dogs = new List<Models.Dog> { };            
+            foreach (string file in files)
+            {
+                var tempDog = (JsonConvert.DeserializeObject<Models.Dog>(System.IO.File.ReadAllText(file)));
+                if (tempDog.BreedName == breedName)
+                {
+                    System.IO.File.Delete(@file);
+                }
+            }
         }
     }
 }
