@@ -48,7 +48,7 @@ namespace dogapi_Mmmolin.Controllers
             var output = JsonConvert.SerializeObject(dog);
             if (dog == null)
             {
-                BadRequest();
+                Response.StatusCode = 400;
             }
             else
             {
@@ -58,8 +58,18 @@ namespace dogapi_Mmmolin.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public void Put(string breedName, [FromBody]Models.Dog dog) // take string and dog Object
         {
+            if (dog == null || breedName != dog.BreedName) // If dog == null or breedName don't correspond to the object
+            {
+                Response.StatusCode = 400; // return bad request
+            }
+            var dogFile = (JsonConvert.DeserializeObject<Models.Dog>(System.IO.File.ReadAllText("/DogFiles/" + breedName + ".json")));
+            dogFile.BreedName = dog.BreedName;
+            dogFile.WikipediaUrl = dog.WikipediaUrl;
+            dogFile.Description = dog.Description;
+            var output = JsonConvert.SerializeObject(dogFile);
+            System.IO.File.WriteAllText(@".\DogFiles\" + breedName + ".json", output);
         }
 
         // DELETE api/values/5
