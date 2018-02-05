@@ -14,26 +14,26 @@ namespace dogapi_Mmmolin.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            var files = System.IO.Directory.GetFiles("DogFiles", "*.json"); 
-            List<Models.Dog> dogs = new List<Models.Dog>(); 
-            foreach (var file in files) 
+            var files = System.IO.Directory.GetFiles("DogFiles", "*.json");
+            List<Models.Dog> dogs = new List<Models.Dog>();
+            foreach (var file in files)
             {
-                dogs.Add(JsonConvert.DeserializeObject<Models.Dog>(System.IO.File.ReadAllText(file))); 
+                dogs.Add(JsonConvert.DeserializeObject<Models.Dog>(System.IO.File.ReadAllText(file)));
             }
-            return dogs.Select(d => d.BreedName).ToArray(); 
+            return dogs.Select(d => d.BreedName).ToArray();
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public IActionResult GetByID(string id)
+        public IActionResult Get(string id)
         {
             var files = System.IO.Directory.GetFiles("DogFiles", "*.json");
             List<Models.Dog> dogs = new List<Models.Dog>();
-            foreach (var file in files) 
+            foreach (var file in files)
             {
-                dogs.Add(JsonConvert.DeserializeObject<Models.Dog>(System.IO.File.ReadAllText(file)));  
+                dogs.Add(JsonConvert.DeserializeObject<Models.Dog>(System.IO.File.ReadAllText(file)));
             }
-            var dog = dogs.Where(d => d.BreedName.ToLower() == id).FirstOrDefault();
+            var dog = dogs.Where(d => d.BreedName == id).FirstOrDefault();
             if (dog == null)
             {
                 return NotFound();
@@ -43,8 +43,17 @@ namespace dogapi_Mmmolin.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public void Post([FromBody]Models.Dog dog)
         {
+            var output = JsonConvert.SerializeObject(dog);
+            if (dog == null)
+            {
+                BadRequest();
+            }
+            else
+            {
+                System.IO.File.WriteAllText(@".\DogFiles\" + dog.BreedName + ".json", output);
+            }
         }
 
         // PUT api/values/5
